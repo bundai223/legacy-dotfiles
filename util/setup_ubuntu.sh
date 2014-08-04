@@ -7,19 +7,16 @@ OS_LOCAL_PATH=$ABS_PATH/../os_local/unix
 # 初回の処理のために環境変数を読み込み
 source $OS_LOCAL_PATH/.zshenv_local
 
-# install go
-ZIPNAME=go1.3.linux-amd64.tar.gz
-wget http://golang.org/dl/${ZIPNAME}
-sudo tar zxvf ${ZIPNAME} -C /usr/local
-rm ${ZIPNAME}
+#sudo apt-get -y install git mercurial ssh zsh aptitude tmux ssh ntp silversearcher-ag vim
 
-PATH=/usr/local/go/bin/:$PATH
-export PATH
-
+### Linuxbrew settings. ################
 sudo apt-get -y update
-sudo apt-get -y install git mercurial ssh zsh aptitude tmux ssh ntp silversearcher-ag vim
+sudo apt-get install build-essential curl git m4 ruby texinfo libbz2-dev libcurl4-openssl-dev libexpat-dev libncurses-dev zlib1g-dev
+ruby -e "$(wget -O- https://raw.github.com/Homebrew/linuxbrew/go/install)"
 
-# go setting
+cd $ABS_PATH && sh Brewfile.sh
+
+### Golang settings. ######################
 # ghqのパス設定のために一時的にコピーしておく
 TMP_GITCONFIG=0
 if [ ! -e ~/.gitconfig ]; then
@@ -27,14 +24,11 @@ if [ ! -e ~/.gitconfig ]; then
 	cp $ABS_PATH/../.gitconfig ~/
 fi
 
-
 bash $ABS_PATH/setup_golang.sh
 
 if [ $TMP_GITCONFIG == 1 ]; then
 	rm ~/.gitconfig
 fi
-
-bash $ABS_PATH/setup_ricty.sh
 
 # common setting
 bash $ABS_PATH/setup.sh

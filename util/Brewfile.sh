@@ -27,7 +27,12 @@ brew install terminal-notifier
 brew install the_silver_searcher
 
 brew install vim --with-lua --with-luajit
-brew install macvim --with-cscope --with-luajit
+
+if [[ $OSTYPE == darwin* ]]; then
+    brew install macvim --with-cscope --with-luajit
+
+    ln -s /usr/local/opt/macvim/MacVim.app ~/Applications/
+fi
 
 # for hobby
 if [ $OSX_PRIVATE ]; then
@@ -78,6 +83,4 @@ if [ $OSX_PRIVATE ]; then
 fi
 
 brew cask cleanup
-
-ln -s /usr/local/opt/macvim/MacVim.app ~/Applications/
 

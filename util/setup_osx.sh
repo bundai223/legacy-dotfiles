@@ -9,33 +9,20 @@ OS_LOCAL_PATH=$ABS_PATH/../os_local/osx
 # 初回の処理のために環境変数を読み込み
 source $OS_LOCAL_PATH/.zshenv_local
 
+
+### Homebrew settings. ################
+ruby -e "$(curl -fsSL https://raw.github.com/Homebrew/homebrew/go/install)"
+
+cd $ABS_PATH && sh Brewfile.sh
+
+
+### Golang setting. ##################
 # ghqのパス設定のために一時的にコピーしておく
 TMP_GITCONFIG=0
 if [ ! -e ~/.gitconfig ]; then
 	TMP_GITCONFIG=1
 	cp $ABS_PATH/../.gitconfig_global ~/.gitconfig
 fi
-
-
-# For OSX
-echo "OS type ${OSTYPE}"
-echo $GOPATH
-
-# Get utility
-OSX_TOOL_NAMES_ARRAY=\
-(\
- 'oddstr/hengband-cocoa.git'\
- 'JugglerShu/XVim.git'\
-)
-for toolname in ${OSX_TOOL_NAMES_ARRAY[@]}; do
-    ghq get ${toolname}
-done
-
-# OSX環境に必須なHomebrewをインストール
-ruby -e "$(curl -fsSL https://raw.github.com/Homebrew/homebrew/go/install)"
-
-cd $OS_LOCAL_PATH && sh Brewfile.sh
-
 
 # リポジトリの取得にも必要なのでgoの初期化
 source $ABS_PATH/setup_golang.sh
@@ -44,7 +31,9 @@ if [ $TMP_GITCONFIG == 1 ]; then
 	rm ~/.gitconfig
 fi
 
-# 共通の初期化処理
+
+
+### Common settings. ################
 # 各ツールの設定ファイルのリンクなど
 source $ABS_PATH/setup.sh
 
@@ -70,4 +59,15 @@ killall Finder
 
 # AndroidStudio style.xml setting.
 curl -L https://raw.githubusercontent.com/android/platform_development/master/ide/intellij/codestyles/AndroidStyle.xml > ~/Library/Preferences/AndroidStudioBeta/codestyles/AndroidStyle.xml
+
+# Get utility
+OSX_TOOL_NAMES_ARRAY=\
+(\
+ 'oddstr/hengband-cocoa.git'\
+ 'JugglerShu/XVim.git'\
+)
+for toolname in ${OSX_TOOL_NAMES_ARRAY[@]}; do
+    ghq get ${toolname}
+done
+
 
