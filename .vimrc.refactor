@@ -1,0 +1,260 @@
+set encoding=utf-8
+scriptencoding utf-8
+
+" release autogroup in MyAutoCmd
+augroup MyAutoCmd
+  autocmd!
+augroup END
+
+
+" env
+function! VimrcEnvironment()
+  let env = {}
+  let env.is_win = has('win32') || has('win64')
+
+  let user_dir = env.is_win
+        \ ? expand('$VIM/vimfiles')
+        \ : expand('~/.config/vim')
+  let chkout_repos_dir = expand('~/repos')
+  let env.path = {
+        \   'user':          user_dir,
+        \   'bundle':        user_dir . '/bundles',
+        \   'data':          user_dir . '/data',
+        \   'local_vimrc':   user_dir . '/.vimrc_local',
+        \   'backup':        user_dir . '/data/backup',
+        \   'swap':          user_dir . '/data/swap',
+        \   'undo':          user_dir . '/data/undo',
+        \   'repos':         chkout_repos_dir,
+        \   'neobundle':     chkout_repos_dir . '/github.com/Shougo/neobundle.vim',
+        \ }
+
+  return env
+endfunction
+
+let s:env = VimrcEnvironment()
+
+
+function! s:mkdir_if_needed(dir)
+  if isdirectory(a:dir)
+    return 0
+  endif
+
+  call mkdir(a:dir, 'p')
+  return 1
+endfunction
+
+
+" Initialize
+if(has('vim_starting'))
+  call s:mkdir_if_needed(s:env.path.user)
+  call s:mkdir_if_needed(s:env.path.bundle)
+  call s:mkdir_if_needed(s:env.path.backup)
+  call s:mkdir_if_needed(s:env.path.swap)
+  call s:mkdir_if_needed(s:env.path.undo)
+endif
+
+
+
+" edit
+set fileformat =unix
+set fileformats =unix
+
+set backup
+set swapfile
+set undofile
+execute 'set backupdir=' . s:env.path.backup
+execute 'set directory=' . s:env.path.swap
+execute 'set undodir=' . s:env.path.undo
+
+" C-a, C-x
+set nrformats=hex
+
+" Default comment format is nothing
+" Almost all this setting override by filetype setting
+" e.g. cpp: /*%s*/
+"      vim: "%s
+set commentstring=%s
+
+" Don't commentout auto.
+augroup MyAutoCmd
+  autocmd FileType * setlocal formatoptions-=o
+augroup END
+
+" Indent
+set expandtab
+
+" Width of tab.
+set tabstop=2
+" Numbers of space per indent level.
+set shiftwidth=2
+
+set shiftround
+
+set autoindent
+set smartindent
+
+" Search
+set ignorecase
+set smartcase
+set incsearch
+set hlsearch
+
+" Misc
+set infercase
+
+set clipboard=unnamed
+set matchpairs=(:),{:},[:],<:>
+
+set splitbelow
+set backspace=indent,eol,start
+set history=10000
+set hidden
+set switchbuf=useopen
+set smarttab
+set t_vb=
+set novisualbell
+set paste
+
+set wildmode=longest:full,full
+set wildmenu
+
+augroup MyAutoCmd
+  autocmd FileType * set tags+=tags;
+"  autocmd InsertEnter * set paste
+"  autocmd InsertLeave * set nopaste
+augroup END
+
+" Mapping
+nnoremap K <nop>
+
+" http://cohama.hateblo.jp/entry/20130529/1369843236
+" Auto complete backslash when input slash on search command(search by slash).
+cnoremap <expr> / (getcmdtype() == '/') ? '\/' : '/'
+cnoremap <C-p> <Up>
+cnoremap <C-n> <Down>
+
+" Leaderを設定
+" 参考: http://deris.hatenablog.jp/entry/2013/05/02/192415
+noremap [myleader] <nop>
+map <Space> [myleader]
+"noremap map \ , "もとのバインドをつぶさないように
+
+if has('macunix')
+  let mapleader = '_'
+endif
+
+" 有効な用途が見えるまであけとく
+noremap s <nop>
+noremap S <nop>
+noremap <C-s> <nop>
+noremap <C-S> <nop>
+
+" Easy to esc
+inoremap <C-g> <Esc>
+nnoremap <C-g> <Esc>
+vnoremap <C-g> <Esc>
+cnoremap <C-g> <Esc>
+
+" Easy to help
+nnoremap [myleader]h :<C-u>vert bel help<Space>
+nnoremap [myleader]H :<C-u>vert bel help<Space><C-r><C-w><CR>
+
+" MYVIMRC
+nnoremap [myleader]v :e $MYVIMRC<CR>
+nnoremap [myleader]g :e $MYGVIMRC<CR>
+nnoremap [myleader]z :e $MYZSHRC<CR>
+nnoremap [myleader]t :e $MYTMUX_CONF<CR>
+
+" カレントパスをバッファに合わせる
+nnoremap <silent>[myleader]<Space> :<C-u>lcd %:h<CR>:pwd<CR>
+
+" Easy to help
+nnoremap [myleader]h :<C-u>vert bel help<Space>
+nnoremap [myleader]H :<C-u>vert bel help<Space><C-r><C-w><CR>
+
+" MYVIMRC
+"nnoremap [myleader]v :e $MYVIMRC<CR>
+"nnoremap [myleader]g :e $MYGVIMRC<CR>
+"nnoremap [myleader]z :e $MYZSHRC<CR>
+"nnoremap [myleader]t :e $MYTMUX_CONF<CR>
+
+" カレントパスをバッファに合わせる
+nnoremap <silent>[myleader]<Space> :<C-u>lcd %:h<CR>:pwd<CR>
+
+" Quick splits
+nnoremap [myleader]_ :sp<CR>
+nnoremap [myleader]<Bar> :vsp<CR>
+
+" Delete line end space|tab.
+nnoremap [myleader]s<Space> :%s/ *$//g<CR>
+"nnoremap [myleader]s<Space> :%s/[ |\t]*$//g<CR>
+
+" Yank to end
+nnoremap Y y$
+
+" Tab
+nnoremap tn :<C-u>tabnew<CR>
+nnoremap te :<C-u>tabnew +edit `=tempname()`<CR>
+nnoremap tc :<C-u>tabclose<CR>
+
+" Cursor moving
+" Move window.
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-h> <C-w>h
+nnoremap <C-l> <C-w>l
+
+" 関数単位で移動
+nmap <C-p> [[
+nmap <C-n> ]]
+
+" Toggle 0 and ^
+nnoremap <expr>0 col('.') == 1 ? '^' : '0'
+nnoremap <expr>^ col('.') == 1 ? '^' : '0'
+
+" Cursor moving
+" Move window.
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-h> <C-w>h
+nnoremap <C-l> <C-w>l
+
+" 関数単位で移動
+nmap <C-p> [[
+nmap <C-n> ]]
+
+" Toggle 0 and ^
+nnoremap <expr>0 col('.') == 1 ? '^' : '0'
+nnoremap <expr>^ col('.') == 1 ? '^' : '0'
+
+" Search and replace
+" 検索ハイライトをオフ
+nnoremap <silent>[myleader]/ :noh <CR>
+
+" 置換
+nnoremap <expr> sl _(":s/<Cursor>//")
+nnoremap <expr> sg _(":s/<Cursor>//g")
+nnoremap <expr> Sg _(":%s/<Cursor>//")
+nnoremap <expr> Sl _(":%s/<Cursor>//g")
+
+" 検索結果をウインドウ真ん中に
+nnoremap n nzzzv
+nnoremap N Nzzzv
+
+
+augroup MyAutoCmd
+  " make, grep などのコマンド後に自動的にQuickFixを開く
+  autocmd QuickfixCmdPost make,grep,grepadd,vimgrep copen
+  " QuickFixおよびHelpでは q でバッファを閉じる
+  autocmd FileType help,qf nnoremap <buffer> q <C-w>c
+augroup END
+
+
+
+"execute 'source ' . fnamemodify(expand('<sfile>'), ':h')
+
+
+" help
+set helplang=en
+set keywordprg=:help
+
